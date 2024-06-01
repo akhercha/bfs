@@ -2,9 +2,13 @@ use core::fmt;
 use std::cmp::{max, min};
 use std::collections::HashMap;
 
+use serde::{Deserialize, Serialize};
+
+use crate::hashable::Hashable;
 use crate::transaction::Transaction;
 use crate::utils::format_hash;
 
+#[derive(Serialize, Deserialize)]
 pub struct MerkleTree {
     pub mt: HashMap<usize, Vec<String>>,
 }
@@ -14,7 +18,6 @@ impl MerkleTree {
         let mut merkle_tree = MerkleTree { mt: HashMap::new() };
         let mut leafs: Vec<String> = txs.iter().map(|tx| tx.get_hash()).collect();
         if leafs.len() % 2 != 0 {
-            // TODO: bad unwrap
             leafs.push(sha256::digest(leafs.last().unwrap().clone()));
         }
         merkle_tree.mt.insert(1, leafs.clone());
@@ -78,7 +81,6 @@ impl MerkleTree {
     }
 
     pub fn get_height_hashes(&self, depth: usize) -> &[String] {
-        // TODO: bad unwrap
         self.mt.get(&depth).unwrap()
     }
 
@@ -94,6 +96,8 @@ impl MerkleTree {
         self.mt.len() == 0
     }
 }
+
+impl Hashable for MerkleTree {}
 
 impl PartialEq for MerkleTree {
     fn eq(&self, other: &Self) -> bool {
@@ -120,7 +124,7 @@ mod tests {
     use bigdecimal::BigDecimal;
 
     use super::*;
-    use crate::get_rand_txs;
+    use crate::{get_rand_txs, transaction::Transaction};
 
     #[test]
     fn test_that_height_is_correct() {
@@ -133,7 +137,7 @@ mod tests {
     fn test_roots_are_equals_for_same_tree() {
         let txs = get_rand_txs(8);
         let mt = MerkleTree::new(txs.clone());
-        let second_mt = MerkleTree::new(txs.clone());
+        let second_mt = MerkleTree::new(txs);
         assert_eq!(mt.get_root(), second_mt.get_root());
     }
 
@@ -161,7 +165,7 @@ mod tests {
         );
         txs[645] = tx.clone();
 
-        let merkle_tree = MerkleTree::new(txs);
+        let merkle_tree = MerkleTree::new(txs.clone());
         assert!(merkle_tree.tx_is_in(&tx));
 
         let tx_not_inside = Transaction::new(

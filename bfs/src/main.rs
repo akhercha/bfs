@@ -1,3 +1,5 @@
+pub mod block;
+pub mod hashable;
 pub mod merkle_tree;
 pub mod transaction;
 pub mod utils;
@@ -11,8 +13,8 @@ use wallet::Wallet;
 
 fn main() {
     let tx = Transaction::new(
-        String::from("aihe.eth"),
-        String::from("adel.eth"),
+        String::from("0201f654a3850aa434c22562e49d54c60018564ead25efddd678a52d26b1d548fa"),
+        String::from("0201f654a3850aa434c22562e49d54c60018564ead25efddd678a52d26b1d548fa"),
         BigDecimal::from(3000),
         BigDecimal::from(1),
         0,
@@ -23,6 +25,9 @@ fn main() {
     println!("{}", mt);
 
     let mut my_wallet = Wallet::new();
-    let tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
-    println!("{}", tx.is_correctly_signed(&my_wallet.public_key));
+    let tx = my_wallet.send(
+        String::from("0201f654a3850aa434c22562e49d54c60018564ead25efddd678a52d26b1d548fa"),
+        BigDecimal::from(42),
+    );
+    println!("{}", tx);
 }

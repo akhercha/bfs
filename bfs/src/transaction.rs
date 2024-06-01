@@ -8,13 +8,14 @@ use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
+use crate::hashable::Hashable;
 use crate::utils::format_hash;
 
 pub fn get_rand_txs(n: usize) -> Vec<Transaction> {
     (0..n).map(|_| rand::random::<Transaction>()).collect()
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Transaction {
     pub from: String,
     pub to: String,
@@ -26,34 +27,31 @@ pub struct Transaction {
     pub signature: Option<Signature>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
-struct HashableTransaction {
-    from: String,
-    to: String,
-    value: BigDecimal,
-    fee: BigDecimal,
+// Helper struct used to serialize a transaction but not take into account
+// the signature fields.
+#[derive(Serialize)]
+struct HashableTransaction<'a> {
+    from: &'a String,
+    to: &'a String,
+    value: &'a BigDecimal,
+    fee: &'a BigDecimal,
     time: i64,
     nonce: u64,
 }
 
-impl PartialEq for Transaction {
-    fn eq(&self, other: &Self) -> bool {
-        self.get_hash() == other.get_hash()
+impl Hashable for Transaction {
+    fn to_bytes(&self) -> Vec<u8> {
+        let hashable = self.to_hashable();
+        bincode::serialize(&hashable).unwrap()
+    }
+
+    fn get_hash(&self) -> String {
+        let hashable = self.to_hashable();
+        sha256::digest(bincode::serialize(&hashable).unwrap())
     }
 }
 
 impl Transaction {
-    fn to_hashable(&self) -> HashableTransaction {
-        HashableTransaction {
-            from: self.from.clone(),
-            to: self.to.clone(),
-            value: self.value.clone(),
-            fee: self.fee.clone(),
-            time: self.time,
-            nonce: self.nonce,
-        }
-    }
-
     pub fn new(
         from: String,
         to: String,
@@ -73,38 +71,38 @@ impl Transaction {
         }
     }
 
-    pub fn to_json(&self) -> String {
-        // TODO: unwrap() bad
-        serde_json::to_string(&self.to_hashable()).unwrap()
-    }
-
-    pub fn to_bytes(&self) -> Vec<u8> {
-        let hashable_tx = self.to_hashable();
-        // TODO: unwrap() bad
-        bincode::serialize(&hashable_tx).unwrap()
-    }
-
-    pub fn get_hash(&self) -> String {
-        sha256::digest(self.to_bytes())
-    }
-
-    pub fn get_readable_hash(&self) -> String {
-        format_hash(&self.get_hash())
-    }
-
-    pub fn is_correctly_signed(&self, public_key: &VerifyingKey) -> bool {
+    pub fn is_correctly_signed(&self) -> bool {
         if self.signature.is_none() {
             return false;
         }
+        let from_bytes = match hex::decode(&self.from[2..]) {
+            Ok(bytes) => bytes,
+            Err(_) => return false,
+        };
+        let signer = match VerifyingKey::from_sec1_bytes(&from_bytes) {
+            Ok(key) => key,
+            Err(_) => return false,
+        };
         let signature = self.signature.unwrap();
-        public_key.verify(&self.to_bytes(), &signature).is_ok()
+        signer.verify(&self.to_bytes(), &signature).is_ok()
+    }
+
+    fn to_hashable(&self) -> HashableTransaction {
+        HashableTransaction {
+            from: &self.from,
+            to: &self.to,
+            value: &self.value,
+            fee: &self.fee,
+            time: self.time,
+            nonce: self.nonce,
+        }
     }
 }
 
 impl fmt::Display for Transaction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let signature = match &self.signature {
-            Some(v) => v.to_string(),
+            Some(v) => format_hash(&v.to_string()),
             None => String::from("⛔ [UNSIGNED]"),
         };
         write!(
@@ -119,14 +117,14 @@ impl fmt::Display for Transaction {
         hash:                   {}
         signature:              {}
         "#,
-            self.from,
-            self.to,
+            format_hash(&self.from),
+            format_hash(&self.to),
             self.value,
             self.fee,
             self.nonce,
             self.time,
             self.signed,
-            self.get_readable_hash(),
+            format_hash(&self.get_hash()),
             signature
         )
     }
@@ -187,16 +185,16 @@ mod tests {
         let mut my_wallet = Wallet::new();
         let tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
         assert_eq!(tx.signed, true);
-        assert_eq!(tx.is_correctly_signed(&my_wallet.public_key), true);
+        assert_eq!(tx.is_correctly_signed(), true);
     }
 
     #[test]
     fn test_tx_not_correctly_signed() {
         let mut my_wallet = Wallet::new();
-        let tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
+        let mut tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
         assert_eq!(tx.signed, true);
-        let my_other_wallet = Wallet::new();
-        assert_eq!(tx.is_correctly_signed(&my_other_wallet.public_key), false);
+        tx.from = String::from("new_sender.eth");
+        assert_eq!(tx.is_correctly_signed(), false);
     }
 
     #[test]
@@ -205,6 +203,6 @@ mod tests {
         let mut tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
         assert_eq!(tx.signed, true);
         tx.value = BigDecimal::from(69420);
-        assert_eq!(tx.is_correctly_signed(&my_wallet.public_key), false);
+        assert_eq!(tx.is_correctly_signed(), false);
     }
 }

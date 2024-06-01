@@ -2,8 +2,9 @@ use bigdecimal::BigDecimal;
 use k256::ecdsa::{signature::Signer, Signature, SigningKey, VerifyingKey};
 use rand_core::OsRng;
 
+use crate::hashable::Hashable;
 use crate::transaction::Transaction;
-use crate::utils::bytes_to_hash;
+use crate::utils::verifying_key_to_string;
 
 #[derive(Clone)]
 pub struct Wallet {
@@ -38,7 +39,7 @@ impl Wallet {
 
     pub fn send(&mut self, to: String, value: BigDecimal) -> Transaction {
         let mut tx = Transaction::new(
-            bytes_to_hash(self.public_key.to_encoded_point(true).as_bytes()),
+            verifying_key_to_string(&self.public_key),
             to,
             value,
             // TODO: compute fees later

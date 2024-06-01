@@ -50,4 +50,15 @@ impl Wallet {
         tx = self.sign(tx);
         tx
     }
+
+    pub fn sign_random_txs(&mut self, n: usize) -> Vec<Transaction> {
+        (0..n)
+            .map(|_| {
+                self.send(
+                    rand::random::<u128>().to_string(),
+                    BigDecimal::from(rand::random::<u128>()),
+                )
+            })
+            .collect()
+    }
 }

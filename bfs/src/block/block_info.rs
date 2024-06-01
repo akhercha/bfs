@@ -12,7 +12,7 @@ pub struct BlockInfo {
 }
 
 impl BlockInfo {
-    pub fn new(txs: Vec<Transaction>) -> BlockInfo {
+    pub fn new(txs: &[Transaction]) -> BlockInfo {
         BlockInfo {
             volume: txs
                 .iter()
@@ -32,7 +32,7 @@ impl fmt::Display for BlockInfo {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(
             f,
-            "\tTotal Volume: {} ETH\nTotal Fees: {}",
+            "Total Volume: {} ETH\nTotal Fees: {}",
             self.volume, self.total_fees
         )
     }

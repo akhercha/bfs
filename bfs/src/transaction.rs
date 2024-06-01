@@ -11,10 +11,6 @@ use serde::{Deserialize, Serialize};
 use crate::hashable::Hashable;
 use crate::utils::to_readable_hash;
 
-pub fn get_rand_txs(n: usize) -> Vec<Transaction> {
-    (0..n).map(|_| rand::random::<Transaction>()).collect()
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Transaction {
     pub from: String,
@@ -75,7 +71,12 @@ impl Transaction {
         if self.signature.is_none() {
             return false;
         }
-        let from_bytes = match hex::decode(&self.from[2..]) {
+        let from_address = if self.from.starts_with("0x") {
+            &self.from[2..]
+        } else {
+            &self.from
+        };
+        let from_bytes = match hex::decode(from_address) {
             Ok(bytes) => bytes,
             Err(_) => return false,
         };

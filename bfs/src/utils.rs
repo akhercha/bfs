@@ -3,6 +3,8 @@ use std::fmt::Write;
 use bigdecimal::ToPrimitive;
 use k256::ecdsa::VerifyingKey;
 
+use crate::transaction::Transaction;
+
 pub const EMOJI_RANGE_START: u128 = 0x1F600;
 pub const EMOJI_RANGE_END: u128 = 0x1F64F;
 pub const EMOJI_RANGE: u128 = EMOJI_RANGE_END - EMOJI_RANGE_START + 1;
@@ -42,4 +44,15 @@ pub fn hash_to_bytes(hash: &str) -> Vec<u8> {
 
 pub fn verifying_key_to_string(key: &VerifyingKey) -> String {
     bytes_to_hash(key.to_encoded_point(true).as_bytes())
+}
+
+pub fn get_rand_txs(n: usize) -> Vec<Transaction> {
+    (0..n).map(|_| rand::random::<Transaction>()).collect()
+}
+
+pub fn check_prefix(string: &str, letter: char, n: usize) -> bool {
+    if string.len() < n {
+        return false;
+    }
+    string.chars().take(n).all(|c| c == letter)
 }

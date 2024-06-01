@@ -14,7 +14,7 @@ pub struct MerkleTree {
 }
 
 impl MerkleTree {
-    pub fn new(txs: Vec<Transaction>) -> Self {
+    pub fn new(txs: &[Transaction]) -> Self {
         let mut merkle_tree = MerkleTree { mt: HashMap::new() };
         let mut leafs: Vec<String> = txs.iter().map(|tx| tx.get_hash()).collect();
         if leafs.len() % 2 != 0 {
@@ -124,20 +124,20 @@ mod tests {
     use bigdecimal::BigDecimal;
 
     use super::*;
-    use crate::{get_rand_txs, transaction::Transaction};
+    use crate::{transaction::Transaction, utils::get_rand_txs};
 
     #[test]
     fn test_that_height_is_correct() {
         let txs = get_rand_txs(8);
-        let mt = MerkleTree::new(txs);
+        let mt = MerkleTree::new(&txs);
         assert_eq!(mt.len(), 4);
     }
 
     #[test]
     fn test_roots_are_equals_for_same_tree() {
         let txs = get_rand_txs(8);
-        let mt = MerkleTree::new(txs.clone());
-        let second_mt = MerkleTree::new(txs);
+        let mt = MerkleTree::new(&txs);
+        let second_mt = MerkleTree::new(&txs);
         assert_eq!(mt.get_root(), second_mt.get_root());
     }
 
@@ -145,11 +145,11 @@ mod tests {
     fn test_that_tree_got_updated() {
         let mut txs = get_rand_txs(8);
 
-        let mt = MerkleTree::new(txs.clone());
+        let mt = MerkleTree::new(&txs);
         let first_root = mt.get_root();
 
         txs[2].value = BigDecimal::from(42);
-        let new_mt = MerkleTree::new(txs);
+        let new_mt = MerkleTree::new(&txs);
         assert_ne!(first_root, new_mt.get_root())
     }
 
@@ -165,7 +165,7 @@ mod tests {
         );
         txs[645] = tx.clone();
 
-        let merkle_tree = MerkleTree::new(txs.clone());
+        let merkle_tree = MerkleTree::new(&txs);
         assert!(merkle_tree.tx_is_in(&tx));
 
         let tx_not_inside = Transaction::new(

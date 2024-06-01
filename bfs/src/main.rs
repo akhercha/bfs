@@ -6,7 +6,6 @@ pub mod transaction;
 pub mod utils;
 pub mod wallet;
 
-use bigdecimal::BigDecimal;
 use block::{Block, BlockHeader};
 use merkle_tree::MerkleTree;
 use miner::Miner;
@@ -33,21 +32,8 @@ fn main() {
     let mut miner = Miner::new(my_wallet);
     let mut last_block = genesis_block;
     loop {
-        let txs = miner.wallet.sign_random_txs(10);
-        println!("⛏ Miner mining next block...");
-        let miner_block = miner
-            .mine(
-                txs,
-                last_block.block_header,
-                MINING_DIFFICULTY,
-                BigDecimal::from(1),
-                Some(1000000000),
-            )
-            .unwrap();
-        println!(
-            "🎉 Successfuly mined new block #{}!\n",
-            miner_block.block_header.block_number
-        );
-        last_block = miner_block;
+        let new_txs = miner.wallet.sign_random_txs(100);
+        let new_block = miner.mine_next_block(last_block, new_txs, MINING_DIFFICULTY);
+        last_block = new_block;
     }
 }

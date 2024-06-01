@@ -71,7 +71,7 @@ impl Miner {
         Ok(Block::new(mined_block_header, &txs).unwrap())
     }
 
-    pub fn sign_coinbase(&mut self, reward: &BigDecimal) -> Transaction {
+    fn sign_coinbase(&mut self, reward: &BigDecimal) -> Transaction {
         let tx = self.wallet.sign(Transaction::new(
             self.get_pub_key(),
             self.get_pub_key(),
@@ -81,5 +81,28 @@ impl Miner {
         ));
         self.wallet.nonce += 1;
         tx
+    }
+
+    pub fn mine_next_block(
+        &mut self,
+        last_block: Block,
+        txs: Vec<Transaction>,
+        difficulty: u64,
+    ) -> Block {
+        println!("⛏ Miner mining next block...");
+        let miner_block = self
+            .mine(
+                txs,
+                last_block.block_header,
+                difficulty,
+                BigDecimal::from(1),
+                Some(1000000000),
+            )
+            .unwrap();
+        println!(
+            "🎉 Successfuly mined new block #{}!\n",
+            miner_block.block_header.block_number
+        );
+        miner_block
     }
 }

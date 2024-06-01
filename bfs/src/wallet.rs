@@ -29,6 +29,10 @@ impl Wallet {
         }
     }
 
+    pub fn public_key(&self) -> String {
+        self.public_key.to_encoded_point(true).to_string()
+    }
+
     pub fn sign(&self, mut tx: Transaction) -> Transaction {
         let hash = tx.to_bytes();
         let signature: Signature = self.private_key.sign(&hash);
@@ -37,13 +41,13 @@ impl Wallet {
         tx
     }
 
-    pub fn send(&mut self, to: String, value: BigDecimal) -> Transaction {
+    pub fn send(&mut self, to: &str, value: BigDecimal) -> Transaction {
         let mut tx = Transaction::new(
             verifying_key_to_string(&self.public_key),
-            to,
+            to.to_string(),
             value,
             // TODO: compute fees later
-            BigDecimal::from(42),
+            BigDecimal::from(0),
             self.nonce,
         );
         self.nonce += 1;
@@ -51,14 +55,9 @@ impl Wallet {
         tx
     }
 
-    pub fn sign_random_txs(&mut self, n: usize) -> Vec<Transaction> {
+    pub fn sign_random_txs(&mut self, to: String, n: usize) -> Vec<Transaction> {
         (0..n)
-            .map(|_| {
-                self.send(
-                    rand::random::<u128>().to_string(),
-                    BigDecimal::from(rand::random::<u128>()),
-                )
-            })
+            .map(|_| self.send(&to, BigDecimal::from(rand::random::<u128>())))
             .collect()
     }
 }

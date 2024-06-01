@@ -1,12 +1,15 @@
 pub mod block;
+pub mod blockchain;
 pub mod hashable;
 pub mod merkle_tree;
 pub mod miner;
+pub mod state;
 pub mod transaction;
 pub mod utils;
 pub mod wallet;
 
 use block::{Block, BlockHeader};
+use blockchain::Blockchain;
 use merkle_tree::MerkleTree;
 use miner::Miner;
 use transaction::Transaction;
@@ -23,17 +26,23 @@ fn mine_genesis(txs: &[Transaction]) -> Block {
 fn main() {
     println!("🚀 [BFS: Blockchain From Scratch]\n");
     let mut my_wallet = Wallet::new();
-    let txs = my_wallet.sign_random_txs(10);
+    let someones_wallet = Wallet::new();
+
+    let txs = my_wallet.sign_random_txs(someones_wallet.public_key(), 10);
 
     println!("⛏ Mining genesis block...");
-    let genesis_block = mine_genesis(&txs);
+    let mut blockchain = Blockchain::from_genesis_block(mine_genesis(&txs));
     println!("🎉 Success!\n");
 
     let mut miner = Miner::new(my_wallet);
-    let mut last_block = genesis_block;
     loop {
-        let new_txs = miner.wallet.sign_random_txs(100);
-        let new_block = miner.mine_next_block(last_block, new_txs, MINING_DIFFICULTY);
-        last_block = new_block;
+        println!("⛏ Miner mining next block...");
+        let last_block = blockchain.get_last_block();
+        let new_txs = miner
+            .wallet
+            .sign_random_txs(someones_wallet.public_key(), 100);
+        let (header_mined, new_block) =
+            miner.mine_next_block(last_block, new_txs, MINING_DIFFICULTY);
+        blockchain.add_block(header_mined, &new_block);
     }
 }

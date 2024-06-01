@@ -1,6 +1,5 @@
 # Blockchain from scratch
 
-Built by following shafu's series on youtube:
-https://www.youtube.com/watch?v=kma1P5dELLk&list=PLxypejxMbza2zU5ZSqTlvhqXOeCtQDspN
+Very very (...) very simple blockchain PoW implemented with 🦀 Rust.
 
-Check it out!
+Built by following shafu's series on [Youtube](https://www.youtube.com/watch?v=kma1P5dELLk&list=PLxypejxMbza2zU5ZSqTlvhqXOeCtQDspN).

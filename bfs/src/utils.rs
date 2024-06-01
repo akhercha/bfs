@@ -3,7 +3,7 @@ use std::fmt::Write;
 use bigdecimal::ToPrimitive;
 use k256::ecdsa::VerifyingKey;
 
-use crate::transaction::Transaction;
+use crate::{block::block_header::MiningBlockHeader, hashable::Hashable, transaction::Transaction};
 
 pub const EMOJI_RANGE_START: u128 = 0x1F600;
 pub const EMOJI_RANGE_END: u128 = 0x1F64F;
@@ -55,4 +55,12 @@ pub fn check_prefix(string: &str, letter: char, n: usize) -> bool {
         return false;
     }
     string.chars().take(n).all(|c| c == letter)
+}
+
+pub fn is_mined_block_valid(block_header: &MiningBlockHeader) -> bool {
+    let mut block_header_bytes = block_header.to_bytes();
+    let mut nonce_bytes = block_header.nonce.to_string().as_bytes().to_vec();
+    block_header_bytes.append(&mut nonce_bytes);
+    let candidate_hash = sha256::digest(&block_header_bytes);
+    check_prefix(&candidate_hash, '0', block_header.difficulty as usize)
 }

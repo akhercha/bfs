@@ -184,7 +184,7 @@ mod tests {
     #[test]
     fn test_tx_correctly_signed() {
         let mut my_wallet = Wallet::new();
-        let tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
+        let tx = my_wallet.send("adel.eth", BigDecimal::from(42));
         assert_eq!(tx.signed, true);
         assert_eq!(tx.is_correctly_signed(), true);
     }
@@ -192,7 +192,7 @@ mod tests {
     #[test]
     fn test_tx_not_correctly_signed() {
         let mut my_wallet = Wallet::new();
-        let mut tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
+        let mut tx = my_wallet.send("adel.eth", BigDecimal::from(42));
         assert_eq!(tx.signed, true);
         tx.from = String::from("new_sender.eth");
         assert_eq!(tx.is_correctly_signed(), false);
@@ -201,7 +201,7 @@ mod tests {
     #[test]
     fn test_tx_not_correctly_signed_after_update() {
         let mut my_wallet = Wallet::new();
-        let mut tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
+        let mut tx = my_wallet.send("adel.eth", BigDecimal::from(42));
         assert_eq!(tx.signed, true);
         tx.value = BigDecimal::from(69420);
         assert_eq!(tx.is_correctly_signed(), false);

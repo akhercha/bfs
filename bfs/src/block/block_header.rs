@@ -24,8 +24,8 @@ impl Hashable for MiningBlockHeader {}
 
 impl MiningBlockHeader {
     pub fn new(
-        hash: String,
-        prev_hash: String,
+        hash: &str,
+        prev_hash: &str,
         block_number: u64,
         txs_number: u64,
         difficulty: u64,
@@ -33,8 +33,8 @@ impl MiningBlockHeader {
         miner_address: String,
     ) -> MiningBlockHeader {
         MiningBlockHeader {
-            hash,
-            prev_hash,
+            hash: hash.to_string(),
+            prev_hash: prev_hash.to_string(),
             block_number,
             txs_number,
             mined: true,
@@ -47,11 +47,11 @@ impl MiningBlockHeader {
     }
 }
 
-impl From<MiningBlockHeader> for BlockHeader {
-    fn from(mined_block: MiningBlockHeader) -> BlockHeader {
+impl From<&MiningBlockHeader> for BlockHeader {
+    fn from(mined_block: &MiningBlockHeader) -> BlockHeader {
         BlockHeader {
-            hash: mined_block.hash,
-            prev_hash: mined_block.prev_hash,
+            hash: mined_block.hash.to_string(),
+            prev_hash: mined_block.prev_hash.to_string(),
             block_number: mined_block.block_number,
             txs_number: mined_block.txs_number,
             created_at: mined_block.created_at,

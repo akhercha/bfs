@@ -32,17 +32,17 @@ impl Miner {
     pub fn mine(
         &mut self,
         mut txs: Vec<Transaction>,
-        prev_header: BlockHeader,
+        prev_header: &BlockHeader,
         difficulty: u64,
         reward: BigDecimal,
         attempts: Option<u64>,
-    ) -> Result<Block, MiningError> {
+    ) -> Result<(MiningBlockHeader, Block), MiningError> {
         txs.insert(0, self.sign_coinbase(&reward));
 
         let mt: MerkleTree = MerkleTree::new(&txs);
         let mut bh: MiningBlockHeader = MiningBlockHeader::new(
-            mt.get_root(),
-            prev_header.hash,
+            &mt.get_root(),
+            &prev_header.hash,
             prev_header.block_number + 1,
             txs.len() as u64,
             difficulty,
@@ -67,8 +67,8 @@ impl Miner {
             return Err(MiningError::UnsuccessfulMining);
         }
         bh.nonce = nonce;
-        let mined_block_header = BlockHeader::from(bh);
-        Ok(Block::new(mined_block_header, &txs).unwrap())
+        let mined_block_header = BlockHeader::from(&bh);
+        Ok((bh, Block::new(mined_block_header, &txs).unwrap()))
     }
 
     fn sign_coinbase(&mut self, reward: &BigDecimal) -> Transaction {
@@ -85,15 +85,14 @@ impl Miner {
 
     pub fn mine_next_block(
         &mut self,
-        last_block: Block,
+        last_block: &Block,
         txs: Vec<Transaction>,
         difficulty: u64,
-    ) -> Block {
-        println!("⛏ Miner mining next block...");
-        let miner_block = self
+    ) -> (MiningBlockHeader, Block) {
+        let (header_mined, new_block) = self
             .mine(
                 txs,
-                last_block.block_header,
+                &last_block.block_header,
                 difficulty,
                 BigDecimal::from(1),
                 Some(1000000000),
@@ -101,8 +100,8 @@ impl Miner {
             .unwrap();
         println!(
             "🎉 Successfuly mined new block #{}!\n",
-            miner_block.block_header.block_number
+            new_block.block_header.block_number
         );
-        miner_block
+        (header_mined, new_block)
     }
 }

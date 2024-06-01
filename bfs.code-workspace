@@ -1,0 +1,14 @@
+{
+    "folders": [
+        {
+            "path": ".",
+            "name": "."
+        },
+        {
+            "path": "bfs"
+        },
+        {
+            "path": "block-explorer"
+        }
+    ],
+}

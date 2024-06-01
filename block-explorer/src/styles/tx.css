@@ -1,0 +1,91 @@
+.tx-row {
+  display: flex;
+  background-color: #223d61;
+  margin-left: 50px;
+  height: 50px;
+  width: 100%;
+  margin-bottom: 3px;
+}
+
+.circle {
+  background-color: #d9d9d9;
+  width: 30px;
+  height: 30px;
+  border-radius: 50px;
+  margin-top: 10px;
+  margin-left: 8px;
+  margin-bottom: 10px;
+  margin-right: 5px;
+}
+.circle-text {
+  font-size: 12px;
+  padding-top: 8px;
+  padding-left: 7px;
+  padding-bottom: 50px;
+}
+.col-1 {
+  font-size: 10px;
+  margin-right: 5px;
+}
+
+.tx-hash:hover {
+  color: #2f82b9;
+}
+
+.col-2 {
+  font-size: 10px;
+  margin-top: -3px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.tx-value {
+  font-size: 8px;
+  margin-left: 35px;
+  margin-top: 17px;
+  padding-top: 2px;
+  text-align: center;
+  height: 12px;
+  width: 50px;
+  background-color: #d9d9d9;
+  color: black;
+  border-radius: 50px;
+}
+.tx-time {
+  font-size: 8px;
+  margin-top: -10px;
+  color: white;
+}
+.tx-hash {
+  color: #65b5eb;
+}
+
+.tx-from {
+  text-decoration: none;
+  color: #3b9ee0;
+}
+
+.from:hover {
+  color: #2f82b9;
+}
+
+.tx-to {
+  text-decoration: none;
+  margin-top: -10px;
+  color: #3b9ee0;
+}
+
+.tx-to:hover {
+  color: #2f82b9;
+}
+
+.tx-from:hover {
+  color: #2f82b9;
+}
+
+.to:hover {
+  color: #2f82b9;
+}
+
+small {
+  color: white;
+}

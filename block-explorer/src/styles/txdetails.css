@@ -1,0 +1,120 @@
+.main {
+  margin-top: 10px;
+  margin-left: 10px;
+  padding-top: 5px;
+  padding-left: 10px;
+  padding-bottom: 15px;
+  background-color: #223d61;
+  font-family: Helvetica;
+  font-size: 12px;
+  font-weight: 10px;
+  width: 450px;
+}
+
+.block-number {
+  margin-top: -6px;
+  font-size: 12px;
+}
+
+.label {
+  color: white;
+}
+
+.ok {
+  width: 10px;
+  margin-left: 5px;
+}
+
+.question {
+  width: 12px;
+  padding-bottom: 2px;
+  margin-right: 5px;
+}
+
+.value {
+  color: white;
+}
+
+.hl {
+  background-color: #2b4e79;
+  width: 97%;
+  height: 1.5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.txd-row {
+  display: flex;
+  margin-top: -8px;
+  margin-bottom: -10px;
+}
+
+.status-row {
+  margin-bottom: -6px;
+}
+
+.hash {
+  margin-left: 2px;
+  color: #3b9ee0;
+  margin-top: -7px;
+}
+
+.from {
+  text-decoration: none;
+  color: #65b5eb;
+  margin-top: -8px;
+  margin-left: 1px;
+  padding-bottom: 10px;
+}
+
+.time {
+  color: white;
+  margin-top: -5px;
+}
+
+.time-row {
+  margin-top: -8px;
+}
+
+.status {
+  background-color: rgba(0, 201, 167, 0.1);
+  margin-top: 12px;
+  margin-left: 2px;
+  color: #00c9a7;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 5px;
+  height: 15px;
+}
+
+.bd-isSigned-true {
+  display: flex;
+}
+
+.bd-isSigned-false {
+  display: flex;
+}
+
+.bd-isSigned-false-icon {
+  margin-top: 15px;
+  margin-left: 8px;
+  width: 10px;
+}
+
+.bd-isSigned-false-label {
+  margin-top: 11px;
+  color: #db190b;
+  margin-left: 5px;
+  background-color: rgba(222, 68, 55, 0.1);
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 5px;
+  padding-bottom: 2px;
+  height: 13px;
+}
+
+.nonce {
+  color: white;
+  margin-top: 16px;
+  margin-left: 10px;
+}

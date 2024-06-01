@@ -1,0 +1,89 @@
+.bd {
+  margin-top: 10px;
+  margin-left: 5px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  height: 500px;
+  width: 480px;
+  background-color: #223d61;
+}
+
+.bd-row {
+  margin-bottom: 5px;
+  margin-left: 5px;
+  color: white;
+}
+
+.bd-row-title {
+  display: flex;
+}
+
+.bd-row-title-question {
+  margin-left: 2px;
+  width: 10px;
+}
+
+.bd-row-title-label {
+  margin-left: 4px;
+  font-size: 12px;
+}
+
+.bd-row-content {
+  margin-top: 5px;
+  font-size: 12px;
+  margin-left: 3px;
+}
+
+#bd-row-content-height {
+  font-weight: bold;
+}
+
+#bd-row-content-hash {
+  color: #3b9ee0;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+.bd-row-divider {
+  margin-left: 10px;
+  margin-bottom: 5px;
+  background-color: #2b4e79;
+  width: 95%;
+  height: 2px;
+}
+
+.block-hash {
+  color: #65b5eb;
+  text-decoration: none;
+}
+
+.block-hash:hover {
+  color: #407192;
+}
+
+.bd-isMined-false {
+  color: #db190b;
+  background-color: rgba(222, 68, 55, 0.1);
+  width: 25px;
+  padding-right: 2px;
+  padding-left: 2px;
+  border-radius: 10%;
+}
+
+.bd-isMined-true {
+  color: #008000;
+  background-color: #e6ffe6;
+  padding-right: 1px;
+  padding-left: 2px;
+  width: 23px;
+  border-radius: 10%;
+}
+
+.bd-row-txs-content {
+  margin-left: -84px;
+  width: 100%;
+}
+
+.bd-txs-hash {
+  margin-bottom: 5px;
+}

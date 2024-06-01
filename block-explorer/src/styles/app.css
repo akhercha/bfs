@@ -1,0 +1,21 @@
+body {
+  background-color: #122b4a;
+}
+
+.home-blocks-items {
+  margin-top: 20px;
+  margin-left: -35px;
+  width: 480px;
+}
+
+.home-label {
+  margin: 20px;
+  color: #65b5eb;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.home-txs-items {
+  width: 430px;
+  margin-left: -40px;
+}

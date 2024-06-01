@@ -15,8 +15,6 @@ use miner::Miner;
 use transaction::Transaction;
 use wallet::Wallet;
 
-pub const MINING_DIFFICULTY: u64 = 3;
-
 fn mine_genesis(txs: &[Transaction]) -> Block {
     let mt = MerkleTree::new(txs);
     let bh = BlockHeader::new(mt.get_root(), String::from("0x0"), 0, txs.len() as u64);
@@ -37,12 +35,17 @@ fn main() {
     let mut miner = Miner::new(my_wallet);
     loop {
         println!("⛏ Miner mining next block...");
-        let last_block = blockchain.get_last_block();
+        // Generate random txs
         let new_txs = miner
             .wallet
             .sign_random_txs(someones_wallet.public_key(), 100);
-        let (header_mined, new_block) =
-            miner.mine_next_block(last_block, new_txs, MINING_DIFFICULTY);
+        // Mine next block
+        let (header_mined, new_block) = miner.mine_next_block(
+            blockchain.get_last_block(),
+            new_txs,
+            blockchain.mining_difficulty,
+        );
+        // Include mined block into blockchain (update state etc...)
         blockchain.add_block(header_mined, &new_block);
     }
 }

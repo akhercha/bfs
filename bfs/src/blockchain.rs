@@ -5,9 +5,12 @@ use crate::state::State;
 use crate::transaction::Transaction;
 use crate::utils::is_mined_block_valid;
 
+pub const BASE_MINING_DIFFICULTY: u64 = 2;
+
 pub struct Blockchain {
     pub state: State,
     pub blocks: Vec<Block>,
+    pub mining_difficulty: u64,
 }
 
 impl Blockchain {
@@ -15,6 +18,7 @@ impl Blockchain {
         Blockchain {
             state: State::from_genesis(&genesis_block),
             blocks: vec![genesis_block],
+            mining_difficulty: BASE_MINING_DIFFICULTY,
         }
     }
 

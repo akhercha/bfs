@@ -30,7 +30,7 @@ impl Miner {
     }
 
     pub fn mine(
-        mut self,
+        &mut self,
         mut txs: Vec<Transaction>,
         prev_header: BlockHeader,
         difficulty: u64,

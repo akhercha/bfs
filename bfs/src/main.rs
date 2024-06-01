@@ -22,26 +22,30 @@ fn mine_genesis(txs: &[Transaction]) -> Block {
 fn main() {
     println!("🚀 [BFS: Blockchain From Scratch]\n");
     let mut my_wallet = Wallet::new();
-    let txs = my_wallet.sign_random_txs(1);
+    let txs = my_wallet.sign_random_txs(10);
 
     println!("⛏ Mining genesis block...");
     let genesis_block = mine_genesis(&txs);
     println!("🎉 Success!\n");
 
     let mut miner = Miner::new(my_wallet);
-    let txs = miner.wallet.sign_random_txs(1);
-    println!("⛏ Miner mining next block...");
-    let miner_block = miner
-        .mine(
-            txs,
-            genesis_block.block_header,
-            1,
-            BigDecimal::from(1),
-            Some(1000000000),
-        )
-        .unwrap();
-    println!(
-        "🎉 Successfuly mined new block #{}!",
-        miner_block.block_header.block_number
-    );
+    let mut last_block = genesis_block;
+    loop {
+        let txs = miner.wallet.sign_random_txs(10);
+        println!("⛏ Miner mining next block...");
+        let miner_block = miner
+            .mine(
+                txs,
+                last_block.block_header,
+                5,
+                BigDecimal::from(1),
+                Some(1000000000),
+            )
+            .unwrap();
+        println!(
+            "🎉 Successfuly mined new block #{}!\n",
+            miner_block.block_header.block_number
+        );
+        last_block = miner_block;
+    }
 }

@@ -13,6 +13,8 @@ use miner::Miner;
 use transaction::Transaction;
 use wallet::Wallet;
 
+pub const MINING_DIFFICULTY: u64 = 3;
+
 fn mine_genesis(txs: &[Transaction]) -> Block {
     let mt = MerkleTree::new(txs);
     let bh = BlockHeader::new(mt.get_root(), String::from("0x0"), 0, txs.len() as u64);
@@ -37,7 +39,7 @@ fn main() {
             .mine(
                 txs,
                 last_block.block_header,
-                5,
+                MINING_DIFFICULTY,
                 BigDecimal::from(1),
                 Some(1000000000),
             )

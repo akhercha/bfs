@@ -37,10 +37,14 @@ pub struct Block {
 impl Hashable for Block {}
 
 pub fn validate_and_get_transactions(
+    merkle_tree: &MerkleTree,
     txs: &[Transaction],
 ) -> Result<HashMap<String, Transaction>, BlockError> {
     let mut transactions = HashMap::new();
     for tx in txs {
+        if !merkle_tree.tx_is_in(tx) {
+            return Err(BlockError::InvalidTransaction);
+        }
         if !tx.is_correctly_signed() {
             return Err(BlockError::InvalidTransaction);
         }
@@ -53,12 +57,13 @@ pub fn validate_and_get_transactions(
 
 impl Block {
     pub fn new(block_header: BlockHeader, txs: &[Transaction]) -> Result<Block, BlockError> {
+        let merkle_tree = MerkleTree::new(txs);
         let block = Block {
-            txs: validate_and_get_transactions(txs)?,
+            txs: validate_and_get_transactions(&merkle_tree, txs)?,
+            merkle_tree,
             block_hash: block_header.get_hash(),
             block_header,
             block_info: BlockInfo::new(txs),
-            merkle_tree: MerkleTree::new(txs),
         };
         if block.block_header.hash != block.merkle_tree.get_root() {
             return Err(BlockError::InvalidBlockHeader);

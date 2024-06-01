@@ -12,12 +12,18 @@ pub struct Wallet {
     pub nonce: u64,
 }
 
+impl Default for Wallet {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Wallet {
     pub fn new() -> Wallet {
         let private_key = SigningKey::random(&mut OsRng);
         Wallet {
             public_key: VerifyingKey::from(&private_key),
-            private_key: private_key,
+            private_key,
             nonce: 0,
         }
     }

@@ -6,16 +6,8 @@ pub mod wallet;
 use bigdecimal::BigDecimal;
 
 use merkle_tree::MerkleTree;
-use transaction::Transaction;
+use transaction::{get_rand_txs, Transaction};
 use wallet::Wallet;
-
-fn get_rand_txs(n: usize) -> Vec<Transaction> {
-    let mut txs = vec![];
-    for _ in 0..n {
-        txs.push(rand::random::<Transaction>())
-    }
-    txs
-}
 
 fn main() {
     let tx = Transaction::new(
@@ -32,6 +24,5 @@ fn main() {
 
     let mut my_wallet = Wallet::new();
     let tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
-    println!("{}", tx);
     println!("{}", tx.is_correctly_signed(&my_wallet.public_key));
 }

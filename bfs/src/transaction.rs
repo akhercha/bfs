@@ -2,13 +2,17 @@ use core::fmt;
 
 use bigdecimal::BigDecimal;
 use chrono::Utc;
-use k256::ecdsa::{VerifyingKey, Signature};
 use k256::ecdsa::signature::Verifier;
+use k256::ecdsa::{Signature, VerifyingKey};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 use crate::utils::format_hash;
+
+pub fn get_rand_txs(n: usize) -> Vec<Transaction> {
+    (0..n).map(|_| rand::random::<Transaction>()).collect()
+}
 
 #[derive(Clone)]
 pub struct Transaction {
@@ -179,18 +183,28 @@ mod tests {
     }
 
     #[test]
-    fn test_that_tx_is_correctly_signed() {
+    fn test_tx_correctly_signed() {
         let mut my_wallet = Wallet::new();
         let tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
+        assert_eq!(tx.signed, true);
         assert_eq!(tx.is_correctly_signed(&my_wallet.public_key), true);
     }
 
     #[test]
-    fn test_that_tx_is_not_correctly_signed() {
+    fn test_tx_not_correctly_signed() {
         let mut my_wallet = Wallet::new();
         let tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
-
+        assert_eq!(tx.signed, true);
         let my_other_wallet = Wallet::new();
         assert_eq!(tx.is_correctly_signed(&my_other_wallet.public_key), false);
+    }
+
+    #[test]
+    fn test_tx_not_correctly_signed_after_update() {
+        let mut my_wallet = Wallet::new();
+        let mut tx = my_wallet.send(String::from("adel.eth"), BigDecimal::from(42));
+        assert_eq!(tx.signed, true);
+        tx.value = BigDecimal::from(69420);
+        assert_eq!(tx.is_correctly_signed(&my_wallet.public_key), false);
     }
 }

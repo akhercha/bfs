@@ -50,7 +50,7 @@ impl MerkleTree {
 
     fn hash_is_in(&self, hash: String) -> bool {
         let mut curr_hash = hash.clone();
-        for curr_height in (1..self.len()).into_iter() {
+        for curr_height in 1..self.len() {
             let curr_height_hashes = self.get_height_hashes(curr_height);
             let curr_index = match self.get_index_of_hash(curr_height_hashes, &curr_hash) {
                 Option::Some(idx) => idx,
@@ -89,6 +89,10 @@ impl MerkleTree {
     pub fn len(&self) -> usize {
         self.mt.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.mt.len() == 0
+    }
 }
 
 impl PartialEq for MerkleTree {
@@ -102,7 +106,7 @@ impl fmt::Display for MerkleTree {
         let mut sorted_mt: Vec<_> = self.mt.iter().collect();
         sorted_mt.sort_by_key(|&(depth, _)| depth);
         for (depth, hashes) in sorted_mt.iter() {
-            write!(f, "[{}]\n", depth)?;
+            writeln!(f, "[{}]", depth)?;
             for hash in hashes.iter() {
                 writeln!(f, "{}", format_hash(&hash.to_string()))?;
             }

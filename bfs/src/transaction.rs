@@ -9,7 +9,7 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 use crate::hashable::Hashable;
-use crate::utils::format_hash;
+use crate::utils::to_readable_hash;
 
 pub fn get_rand_txs(n: usize) -> Vec<Transaction> {
     (0..n).map(|_| rand::random::<Transaction>()).collect()
@@ -102,7 +102,7 @@ impl Transaction {
 impl fmt::Display for Transaction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let signature = match &self.signature {
-            Some(v) => format_hash(&v.to_string()),
+            Some(v) => to_readable_hash(&v.to_string()),
             None => String::from("⛔ [UNSIGNED]"),
         };
         write!(
@@ -117,14 +117,14 @@ impl fmt::Display for Transaction {
         hash:                   {}
         signature:              {}
         "#,
-            format_hash(&self.from),
-            format_hash(&self.to),
+            to_readable_hash(&self.from),
+            to_readable_hash(&self.to),
             self.value,
             self.fee,
             self.nonce,
             self.time,
             self.signed,
-            format_hash(&self.get_hash()),
+            to_readable_hash(&self.get_hash()),
             signature
         )
     }

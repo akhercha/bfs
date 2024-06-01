@@ -1,9 +1,11 @@
+use core::fmt;
+
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
 
 use crate::{hashable::Hashable, transaction::Transaction};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct BlockInfo {
     pub volume: BigDecimal,
     pub total_fees: BigDecimal,
@@ -25,3 +27,13 @@ impl BlockInfo {
 }
 
 impl Hashable for BlockInfo {}
+
+impl fmt::Display for BlockInfo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(
+            f,
+            "\tTotal Volume: {} ETH\nTotal Fees: {}",
+            self.volume, self.total_fees
+        )
+    }
+}

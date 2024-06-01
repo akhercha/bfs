@@ -6,9 +6,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::hashable::Hashable;
 use crate::transaction::Transaction;
-use crate::utils::format_hash;
+use crate::utils::to_readable_hash;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct MerkleTree {
     pub mt: HashMap<usize, Vec<String>>,
 }
@@ -112,7 +112,7 @@ impl fmt::Display for MerkleTree {
         for (depth, hashes) in sorted_mt.iter() {
             writeln!(f, "[{}]", depth)?;
             for hash in hashes.iter() {
-                writeln!(f, "{}", format_hash(&hash.to_string()))?;
+                writeln!(f, "{}", to_readable_hash(&hash.to_string()))?;
             }
         }
         write!(f, "")

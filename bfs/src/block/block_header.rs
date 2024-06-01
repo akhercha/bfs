@@ -2,7 +2,7 @@ use core::fmt;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{hashable::Hashable, utils::format_hash};
+use crate::{hashable::Hashable, utils::to_readable_hash};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct BlockHeader {
@@ -27,8 +27,8 @@ impl fmt::Display for BlockHeader {
         mined:                          {}
         created_at:                     {}
         "#,
-            format_hash(&self.root),
-            format_hash(&self.prev_hash),
+            to_readable_hash(&self.root),
+            to_readable_hash(&self.prev_hash),
             self.block_number,
             self.txs_number,
             self.mined,

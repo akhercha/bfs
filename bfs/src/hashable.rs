@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::utils::format_hash;
+use crate::utils::to_readable_hash;
 
 pub trait Hashable: Serialize {
     fn to_json(&self) -> String {
@@ -16,6 +16,6 @@ pub trait Hashable: Serialize {
     }
 
     fn get_readable_hash(&self) -> String {
-        format_hash(&self.get_hash())
+        to_readable_hash(&self.get_hash())
     }
 }

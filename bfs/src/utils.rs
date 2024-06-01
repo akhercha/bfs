@@ -15,7 +15,7 @@ fn hash_to_emoji(hash: &str) -> String {
         .to_string()
 }
 
-pub fn format_hash(hash: &str) -> String {
+pub fn to_readable_hash(hash: &str) -> String {
     hash_to_emoji(hash) + " " + &hash[..8] + "..." + &hash[hash.len() - 4..hash.len()]
 }
 

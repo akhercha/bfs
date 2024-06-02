@@ -1,15 +1,17 @@
+use bigdecimal::BigDecimal;
+
 use crate::block::block_header::MiningBlockHeader;
 use crate::block::{Block, BlockHeader};
-use crate::merkle_tree::MerkleTree;
 use crate::state::State;
 use crate::transaction::Transaction;
 
-pub const BASE_MINING_DIFFICULTY: u64 = 4;
+pub const BASE_MINING_DIFFICULTY: u64 = 3;
 
 pub struct Blockchain {
     pub state: State,
     pub blocks: Vec<Block>,
     pub mining_difficulty: u64,
+    pub mining_reward: BigDecimal,
 }
 
 impl Blockchain {
@@ -18,18 +20,16 @@ impl Blockchain {
             state: State::from_genesis(&genesis_block),
             blocks: vec![genesis_block],
             mining_difficulty: BASE_MINING_DIFFICULTY,
+            mining_reward: BigDecimal::from(1),
         }
     }
 
-    pub fn candidate(self, txs: &[Transaction]) -> Block {
-        let merkle_tree = MerkleTree::new(txs);
-        let last_block = self.blocks.last().unwrap();
-        let block_header = BlockHeader::new(
-            merkle_tree.get_root(),
-            &last_block.block_hash,
-            self.blocks.len() as u64,
-            txs.len() as u64,
-        );
+    pub fn build_block_candidate(
+        &self,
+        header_mined: &MiningBlockHeader,
+        txs: &[Transaction],
+    ) -> Block {
+        let block_header = BlockHeader::from(header_mined);
         Block::new(block_header, txs).unwrap()
     }
 
@@ -49,7 +49,7 @@ impl Blockchain {
         self.blocks.push(new_block.clone());
     }
 
-    pub fn is_mined_block_valid(&self, header: &MiningBlockHeader) -> bool {
+    fn is_mined_block_valid(&self, header: &MiningBlockHeader) -> bool {
         assert!(header.is_pow_computation_valid());
         let current_nb_blocks = self.blocks.len() as u64;
         assert!(header.block_number == current_nb_blocks);

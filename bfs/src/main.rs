@@ -35,25 +35,21 @@ fn main() {
     println!("🎉 Success!\n");
 
     let mut miner = Miner::new(my_wallet);
-    let new_txs = wallet_a.sign_random_txs(&wallet_b.public_key(), 100);
     loop {
+        let mut txs = wallet_a.sign_random_txs(&wallet_b.public_key(), 10);
+        txs.insert(0, miner.sign_coinbase(&blockchain.mining_reward));
         println!("⛏ Miner mining next block...");
         // Mine next block
-        let mut tries = 0;
-        let (header_mined, new_block) = loop {
-            let mining_result = miner.mine_next_block(
-                blockchain.get_last_block(),
-                new_txs.clone(),
-                blockchain.mining_difficulty,
-                Some(1000),
-            );
-            if let Ok(mining_result) = mining_result {
+        let mut tries = 1;
+        let header_mined = loop {
+            if let Ok(mining_result) = miner.mine_next_block(&blockchain, &txs, Some(1000)) {
                 break mining_result;
             } else {
                 tries += 1;
             }
         };
         // Include mined block into blockchain (update state etc...)
+        let new_block = blockchain.build_block_candidate(&header_mined, &txs);
         blockchain.add_block(header_mined, &new_block);
         println!(
             "🎉 Successfuly mined new block #{}! [{} tries]\n",

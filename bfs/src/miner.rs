@@ -1,7 +1,8 @@
 use bigdecimal::BigDecimal;
 
 use crate::{
-    block::{block_header::MiningBlockHeader, Block, BlockHeader},
+    block::{block_header::MiningBlockHeader, BlockHeader},
+    blockchain::Blockchain,
     hashable::Hashable,
     merkle_tree::MerkleTree,
     transaction::Transaction,
@@ -31,23 +32,21 @@ impl Miner {
 
     pub fn mine(
         &mut self,
-        mut txs: Vec<Transaction>,
+        txs: &[Transaction],
         prev_header: &BlockHeader,
         prev_block_hash: &str,
         difficulty: u64,
-        reward: BigDecimal,
+        reward: &BigDecimal,
         attempts: Option<u64>,
-    ) -> Result<(MiningBlockHeader, Block), MiningError> {
-        txs.insert(0, self.sign_coinbase(&reward));
-
-        let mt: MerkleTree = MerkleTree::new(&txs);
+    ) -> Result<MiningBlockHeader, MiningError> {
+        let mt: MerkleTree = MerkleTree::new(txs);
         let mut bh: MiningBlockHeader = MiningBlockHeader::new(
             &mt.get_root(),
             prev_block_hash,
             prev_header.block_number + 1,
             txs.len() as u64,
             difficulty,
-            reward,
+            reward.clone(),
             self.get_pub_key(),
         );
 
@@ -67,12 +66,10 @@ impl Miner {
         if bh.nonce == attempts {
             return Err(MiningError::UnsuccessfulMining);
         }
-        let mined_block_header = BlockHeader::from(&bh);
-        let mined_block = Block::new(mined_block_header, &txs).unwrap();
-        Ok((bh, mined_block))
+        Ok(bh)
     }
 
-    fn sign_coinbase(&mut self, reward: &BigDecimal) -> Transaction {
+    pub fn sign_coinbase(&mut self, reward: &BigDecimal) -> Transaction {
         let tx = self.wallet.sign(Transaction::new(
             self.get_pub_key(),
             self.get_pub_key(),
@@ -86,19 +83,19 @@ impl Miner {
 
     pub fn mine_next_block(
         &mut self,
-        last_block: &Block,
-        txs: Vec<Transaction>,
-        difficulty: u64,
+        blockchain: &Blockchain,
+        txs: &[Transaction],
         attempts: Option<u64>,
-    ) -> Result<(MiningBlockHeader, Block), MiningError> {
-        let (header_mined, new_block) = self.mine(
+    ) -> Result<MiningBlockHeader, MiningError> {
+        let last_block = blockchain.get_last_block();
+        let header_mined = self.mine(
             txs,
             &last_block.block_header,
             &last_block.block_hash,
-            difficulty,
-            BigDecimal::from(1),
+            blockchain.mining_difficulty,
+            &blockchain.mining_reward,
             attempts,
         )?;
-        Ok((header_mined, new_block))
+        Ok(header_mined)
     }
 }

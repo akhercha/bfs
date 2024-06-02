@@ -9,7 +9,7 @@ use crate::{
     wallet::Wallet,
 };
 
-pub const MINING_DEFAULT_ATTEMPS: u64 = 1000;
+pub const MINING_DEFAULT_ATTEMPS: u64 = 100;
 
 #[derive(Debug)]
 pub enum MiningError {
@@ -89,17 +89,16 @@ impl Miner {
         last_block: &Block,
         txs: Vec<Transaction>,
         difficulty: u64,
-    ) -> (MiningBlockHeader, Block) {
-        let (header_mined, new_block) = self
-            .mine(
-                txs,
-                &last_block.block_header,
-                &last_block.block_hash,
-                difficulty,
-                BigDecimal::from(1),
-                Some(1000000000),
-            )
-            .unwrap();
-        (header_mined, new_block)
+        attempts: Option<u64>,
+    ) -> Result<(MiningBlockHeader, Block), MiningError> {
+        let (header_mined, new_block) = self.mine(
+            txs,
+            &last_block.block_header,
+            &last_block.block_hash,
+            difficulty,
+            BigDecimal::from(1),
+            attempts,
+        )?;
+        Ok((header_mined, new_block))
     }
 }

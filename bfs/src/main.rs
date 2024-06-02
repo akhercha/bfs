@@ -40,16 +40,25 @@ fn main() {
         // Generate random txs
         let new_txs = wallet_a.sign_random_txs(&wallet_b.public_key(), 100);
         // Mine next block
-        let (header_mined, new_block) = miner.mine_next_block(
-            blockchain.get_last_block(),
-            new_txs,
-            blockchain.mining_difficulty,
-        );
+        let mut tries = 0;
+        let (header_mined, new_block) = loop {
+            let mining_result = miner.mine_next_block(
+                blockchain.get_last_block(),
+                new_txs.clone(),
+                blockchain.mining_difficulty,
+                Some(1000),
+            );
+            if let Ok(mining_result) = mining_result {
+                break mining_result;
+            } else {
+                tries += 1;
+            }
+        };
         // Include mined block into blockchain (update state etc...)
         blockchain.add_block(header_mined, &new_block);
         println!(
-            "🎉 Successfuly mined new block #{}!\n",
-            new_block.block_header.block_number
+            "🎉 Successfuly mined new block #{}! [{} tries]\n",
+            new_block.block_header.block_number, tries
         );
     }
 }

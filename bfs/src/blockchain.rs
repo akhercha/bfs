@@ -4,7 +4,7 @@ use crate::merkle_tree::MerkleTree;
 use crate::state::State;
 use crate::transaction::Transaction;
 
-pub const BASE_MINING_DIFFICULTY: u64 = 2;
+pub const BASE_MINING_DIFFICULTY: u64 = 4;
 
 pub struct Blockchain {
     pub state: State,

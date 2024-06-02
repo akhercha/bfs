@@ -36,16 +36,11 @@ impl Blockchain {
     pub fn add_block(&mut self, header_mined: MiningBlockHeader, new_block: &Block) {
         assert!(self.is_mined_block_valid(&header_mined));
         let miner_address = header_mined.miner_address;
-
-        let mut txs: Vec<&Transaction> = new_block.txs.values().collect();
-        txs.sort_by(|a, b| a.nonce.cmp(&b.nonce).then_with(|| a.time.cmp(&b.time)));
-        for tx in txs {
+        for tx in new_block.txs.values() {
             self.state.apply_tx(tx, &miner_address);
         }
-
         self.state
             .apply_mining_reward(&miner_address, &header_mined.reward);
-
         self.blocks.push(new_block.clone());
     }
 

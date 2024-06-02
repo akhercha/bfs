@@ -6,8 +6,8 @@ pub use block_info::BlockInfo;
 use serde_json::{from_str, Value};
 
 use core::fmt;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::{
     fs::{File, OpenOptions},
     io::Read,
@@ -30,7 +30,7 @@ pub struct Block {
     pub block_header: BlockHeader,
     pub block_info: BlockInfo,
     pub merkle_tree: MerkleTree,
-    pub txs: HashMap<String, Transaction>,
+    pub txs: IndexMap<String, Transaction>,
     pub block_hash: String,
 }
 
@@ -39,8 +39,8 @@ impl Hashable for Block {}
 pub fn validate_and_get_transactions(
     merkle_tree: &MerkleTree,
     txs: &[Transaction],
-) -> Result<HashMap<String, Transaction>, BlockError> {
-    let mut transactions = HashMap::new();
+) -> Result<IndexMap<String, Transaction>, BlockError> {
+    let mut transactions = IndexMap::new();
     for tx in txs {
         if !merkle_tree.tx_is_in(tx) {
             return Err(BlockError::InvalidTransaction);

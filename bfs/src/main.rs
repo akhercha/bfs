@@ -36,7 +36,7 @@ fn main() {
 
     let mut miner = Miner::new(my_wallet);
     loop {
-        let mut txs = wallet_a.sign_random_txs(&wallet_b.public_key(), 10);
+        let mut txs = wallet_a.sign_random_txs(&wallet_b.public_key(), 5);
         txs.insert(0, miner.sign_coinbase(&blockchain.mining_reward));
         println!("⛏ Miner mining next block...");
         // Mine next block

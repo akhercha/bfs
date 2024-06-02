@@ -1,12 +1,15 @@
 use bigdecimal::BigDecimal;
+use serde::{Deserialize, Serialize};
 
 use crate::block::block_header::MiningBlockHeader;
 use crate::block::{Block, BlockHeader};
+use crate::hashable::Hashable;
 use crate::state::State;
 use crate::transaction::Transaction;
 
 pub const BASE_MINING_DIFFICULTY: u64 = 3;
 
+#[derive(Serialize, Deserialize)]
 pub struct Blockchain {
     pub state: State,
     pub blocks: Vec<Block>,
@@ -59,3 +62,5 @@ impl Blockchain {
         self.blocks.last().unwrap()
     }
 }
+
+impl Hashable for Blockchain {}

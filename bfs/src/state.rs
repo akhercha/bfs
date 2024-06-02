@@ -47,6 +47,7 @@ impl fmt::Display for AccountState {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct State {
     pub state: HashMap<String, AccountState>,
 }
@@ -131,6 +132,8 @@ impl State {
         self.get(address).balance.clone()
     }
 }
+
+impl Hashable for State {}
 
 impl fmt::Display for State {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

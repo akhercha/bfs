@@ -3,15 +3,10 @@ pub mod block_info;
 
 pub use block_header::BlockHeader;
 pub use block_info::BlockInfo;
-use serde_json::{from_str, Value};
 
 use core::fmt;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-use std::{
-    fs::{File, OpenOptions},
-    io::Read,
-};
 
 use crate::hashable::Hashable;
 use crate::merkle_tree::MerkleTree;
@@ -69,26 +64,6 @@ impl Block {
             return Err(BlockError::InvalidBlockHeader);
         }
         Ok(block)
-    }
-
-    pub fn from_json_file(file_path: &str) -> std::io::Result<Block> {
-        let mut file = File::open(file_path)?;
-        let mut json_data = String::new();
-        file.read_to_string(&mut json_data)?;
-        let block: Block = serde_json::from_str(&json_data)?;
-        Ok(block)
-    }
-
-    pub fn to_json_file(&self, new_file: &str) {
-        let file = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .truncate(true)
-            .open(new_file)
-            .unwrap();
-        let json_str = self.to_json();
-        let json_value: Value = from_str(&json_str).unwrap();
-        serde_json::to_writer_pretty(file, &json_value).unwrap();
     }
 
     pub fn get_tx(&self, tx_hash: &str) -> Option<&Transaction> {

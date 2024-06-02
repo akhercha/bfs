@@ -10,6 +10,7 @@ pub mod wallet;
 
 use block::{Block, BlockHeader};
 use blockchain::Blockchain;
+use hashable::Hashable;
 use merkle_tree::MerkleTree;
 use miner::Miner;
 use transaction::Transaction;
@@ -35,11 +36,12 @@ fn main() {
     println!("🎉 Success!\n");
 
     let mut miner = Miner::new(my_wallet);
-    loop {
+    // Mine 10 new blocks...
+    for _ in 0..10 {
         let mut txs = wallet_a.sign_random_txs(&wallet_b.public_key(), 5);
-        txs.insert(0, miner.sign_coinbase(&blockchain.mining_reward));
         println!("⛏ Miner mining next block...");
         // Mine next block
+        txs.insert(0, miner.sign_coinbase(&blockchain.mining_reward));
         let mut tries = 1;
         let header_mined = loop {
             if let Ok(mining_result) = miner.mine_next_block(&blockchain, &txs, Some(1000)) {
@@ -56,4 +58,6 @@ fn main() {
             new_block.block_header.block_number, tries
         );
     }
+    // And saves the blockchain state in a json
+    blockchain.to_json_file("my_blockchain.json");
 }

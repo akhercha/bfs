@@ -37,10 +37,10 @@ impl Miner {
         prev_block_hash: &str,
         difficulty: u64,
         reward: &BigDecimal,
-        attempts: Option<u64>,
+        attempts: u64,
     ) -> Result<MiningBlockHeader, MiningError> {
-        let mt: MerkleTree = MerkleTree::new(txs);
-        let mut bh: MiningBlockHeader = MiningBlockHeader::new(
+        let mt = MerkleTree::new(txs);
+        let mut bh = MiningBlockHeader::new(
             &mt.get_root(),
             prev_block_hash,
             prev_header.block_number + 1,
@@ -49,9 +49,6 @@ impl Miner {
             reward.clone(),
             self.get_pub_key(),
         );
-
-        let attempts = attempts.unwrap_or(MINING_DEFAULT_ATTEMPS);
-
         let mut bh_bytes: Vec<u8>;
         for _ in 0..attempts {
             bh_bytes = bh.to_bytes();
@@ -88,6 +85,7 @@ impl Miner {
         attempts: Option<u64>,
     ) -> Result<MiningBlockHeader, MiningError> {
         let last_block = blockchain.get_last_block();
+        let attempts = attempts.unwrap_or(MINING_DEFAULT_ATTEMPS);
         let header_mined = self.mine(
             txs,
             &last_block.block_header,

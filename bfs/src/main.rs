@@ -35,10 +35,9 @@ fn main() {
     println!("🎉 Success!\n");
 
     let mut miner = Miner::new(my_wallet);
+    let new_txs = wallet_a.sign_random_txs(&wallet_b.public_key(), 100);
     loop {
         println!("⛏ Miner mining next block...");
-        // Generate random txs
-        let new_txs = wallet_a.sign_random_txs(&wallet_b.public_key(), 100);
         // Mine next block
         let mut tries = 0;
         let (header_mined, new_block) = loop {

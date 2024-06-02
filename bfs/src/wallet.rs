@@ -1,10 +1,10 @@
 use bigdecimal::BigDecimal;
 use k256::ecdsa::{signature::Signer, Signature, SigningKey, VerifyingKey};
+use rand::Rng;
 use rand_core::OsRng;
 
 use crate::hashable::Hashable;
 use crate::transaction::Transaction;
-use crate::utils::verifying_key_to_string;
 
 #[derive(Clone)]
 pub struct Wallet {
@@ -43,21 +43,25 @@ impl Wallet {
 
     pub fn send(&mut self, to: &str, value: BigDecimal) -> Transaction {
         let mut tx = Transaction::new(
-            verifying_key_to_string(&self.public_key),
+            self.public_key(),
             to.to_string(),
             value,
-            // TODO: compute fees later
+            // TODO: fees are 0 atm
             BigDecimal::from(0),
             self.nonce,
         );
-        self.nonce += 1;
         tx = self.sign(tx);
+        self.nonce += 1;
         tx
     }
 
-    pub fn sign_random_txs(&mut self, to: String, n: usize) -> Vec<Transaction> {
+    pub fn sign_random_txs(&mut self, to: &str, n: usize) -> Vec<Transaction> {
+        let mut rng = rand::thread_rng();
         (0..n)
-            .map(|_| self.send(&to, BigDecimal::from(rand::random::<u128>())))
+            .map(|_| {
+                let random_amount: u128 = rng.gen_range(1..=5);
+                self.send(to, BigDecimal::from(random_amount))
+            })
             .collect()
     }
 }

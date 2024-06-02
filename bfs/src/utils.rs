@@ -1,9 +1,8 @@
 use std::fmt::Write;
 
 use bigdecimal::ToPrimitive;
-use k256::ecdsa::VerifyingKey;
 
-use crate::{block::block_header::MiningBlockHeader, hashable::Hashable, transaction::Transaction};
+use crate::transaction::Transaction;
 
 pub const EMOJI_RANGE_START: u128 = 0x1F600;
 pub const EMOJI_RANGE_END: u128 = 0x1F64F;
@@ -18,7 +17,7 @@ fn hash_to_emoji(hash: &str) -> String {
 }
 
 pub fn to_readable_hash(hash: &str) -> String {
-    hash_to_emoji(hash) + " " + &hash[..8] + "..." + &hash[hash.len() - 4..hash.len()]
+    hash_to_emoji(hash) + " 0x" + &hash[..8] + "..." + &hash[hash.len() - 4..hash.len()]
 }
 
 pub fn bytes_to_hash(bytes: &[u8]) -> String {
@@ -26,7 +25,7 @@ pub fn bytes_to_hash(bytes: &[u8]) -> String {
     for byte in bytes {
         write!(&mut hash, "{:02x}", byte).expect("Unable to write");
     }
-    format!("0x{}", hash)
+    hash
 }
 
 pub fn hash_to_bytes(hash: &str) -> Vec<u8> {
@@ -42,10 +41,6 @@ pub fn hash_to_bytes(hash: &str) -> Vec<u8> {
         .collect()
 }
 
-pub fn verifying_key_to_string(key: &VerifyingKey) -> String {
-    bytes_to_hash(key.to_encoded_point(true).as_bytes())
-}
-
 pub fn get_rand_txs(n: usize) -> Vec<Transaction> {
     (0..n).map(|_| rand::random::<Transaction>()).collect()
 }
@@ -55,12 +50,4 @@ pub fn check_prefix(string: &str, letter: char, n: usize) -> bool {
         return false;
     }
     string.chars().take(n).all(|c| c == letter)
-}
-
-pub fn is_mined_block_valid(block_header: &MiningBlockHeader) -> bool {
-    let mut block_header_bytes = block_header.to_bytes();
-    let mut nonce_bytes = block_header.nonce.to_string().as_bytes().to_vec();
-    block_header_bytes.append(&mut nonce_bytes);
-    let candidate_hash = sha256::digest(&block_header_bytes);
-    check_prefix(&candidate_hash, '0', block_header.difficulty as usize)
 }

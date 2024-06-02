@@ -33,6 +33,7 @@ impl Miner {
         &mut self,
         mut txs: Vec<Transaction>,
         prev_header: &BlockHeader,
+        prev_block_hash: &str,
         difficulty: u64,
         reward: BigDecimal,
         attempts: Option<u64>,
@@ -42,7 +43,7 @@ impl Miner {
         let mt: MerkleTree = MerkleTree::new(&txs);
         let mut bh: MiningBlockHeader = MiningBlockHeader::new(
             &mt.get_root(),
-            &prev_header.hash,
+            prev_block_hash,
             prev_header.block_number + 1,
             txs.len() as u64,
             difficulty,
@@ -52,23 +53,23 @@ impl Miner {
 
         let attempts = attempts.unwrap_or(MINING_DEFAULT_ATTEMPS);
 
-        let mut nonce = 0_u64;
-        let mut bh_bytes = bh.to_bytes();
+        let mut bh_bytes: Vec<u8>;
         for _ in 0..attempts {
-            let mut nonce_as_bytes = nonce.to_string().as_bytes().to_vec();
+            bh_bytes = bh.to_bytes();
+            let mut nonce_as_bytes = bh.nonce.to_string().as_bytes().to_vec();
             bh_bytes.append(&mut nonce_as_bytes);
             let computed_hash = sha256::digest(&bh_bytes);
             if check_prefix(&computed_hash, '0', difficulty as usize) {
                 break;
             }
-            nonce += 1;
+            bh.nonce += 1;
         }
-        if nonce == attempts {
+        if bh.nonce == attempts {
             return Err(MiningError::UnsuccessfulMining);
         }
-        bh.nonce = nonce;
         let mined_block_header = BlockHeader::from(&bh);
-        Ok((bh, Block::new(mined_block_header, &txs).unwrap()))
+        let mined_block = Block::new(mined_block_header, &txs).unwrap();
+        Ok((bh, mined_block))
     }
 
     fn sign_coinbase(&mut self, reward: &BigDecimal) -> Transaction {
@@ -93,15 +94,12 @@ impl Miner {
             .mine(
                 txs,
                 &last_block.block_header,
+                &last_block.block_hash,
                 difficulty,
                 BigDecimal::from(1),
                 Some(1000000000),
             )
             .unwrap();
-        println!(
-            "🎉 Successfuly mined new block #{}!\n",
-            new_block.block_header.block_number
-        );
         (header_mined, new_block)
     }
 }

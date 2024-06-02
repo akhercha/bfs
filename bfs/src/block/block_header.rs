@@ -4,9 +4,10 @@ use bigdecimal::BigDecimal;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
-use crate::{hashable::Hashable, utils::to_readable_hash};
+use crate::hashable::Hashable;
+use crate::utils::{check_prefix, to_readable_hash};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MiningBlockHeader {
     pub hash: String,
     pub prev_hash: String,
@@ -45,6 +46,14 @@ impl MiningBlockHeader {
             nonce: 0,
         }
     }
+
+    pub fn is_pow_computation_valid(&self) -> bool {
+        let mut block_header_bytes = self.to_bytes();
+        let mut nonce_as_bytes = self.nonce.to_string().as_bytes().to_vec();
+        block_header_bytes.append(&mut nonce_as_bytes);
+        let candidate_hash = sha256::digest(&block_header_bytes);
+        check_prefix(&candidate_hash, '0', self.difficulty as usize)
+    }
 }
 
 impl From<&MiningBlockHeader> for BlockHeader {
@@ -71,10 +80,10 @@ pub struct BlockHeader {
 }
 
 impl BlockHeader {
-    pub fn new(hash: String, prev_hash: String, block_number: u64, txs_number: u64) -> BlockHeader {
+    pub fn new(hash: String, prev_hash: &str, block_number: u64, txs_number: u64) -> BlockHeader {
         BlockHeader {
             hash,
-            prev_hash,
+            prev_hash: prev_hash.to_string(),
             block_number,
             txs_number,
             mined: false,

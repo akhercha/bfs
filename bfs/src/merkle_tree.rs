@@ -36,7 +36,7 @@ impl MerkleTree {
                     } else {
                         l.to_string()
                     };
-                    format!("0x{}", sha256::digest(l.to_string() + &r))
+                    sha256::digest(l.to_string() + &r)
                 })
                 .collect();
 
@@ -68,9 +68,9 @@ impl MerkleTree {
             let neighbour_hash = curr_height_hashes[neighbour_position].clone();
 
             curr_hash = if curr_index % 2 == 0 {
-                format!("0x{}", sha256::digest(curr_hash + &neighbour_hash))
+                sha256::digest(curr_hash + &neighbour_hash)
             } else {
-                format!("0x{}", sha256::digest(neighbour_hash + &curr_hash))
+                sha256::digest(neighbour_hash + &curr_hash)
             };
         }
         curr_hash == self.get_root()

@@ -3,7 +3,6 @@ use crate::block::{Block, BlockHeader};
 use crate::merkle_tree::MerkleTree;
 use crate::state::State;
 use crate::transaction::Transaction;
-use crate::utils::is_mined_block_valid;
 
 pub const BASE_MINING_DIFFICULTY: u64 = 2;
 
@@ -27,7 +26,7 @@ impl Blockchain {
         let last_block = self.blocks.last().unwrap();
         let block_header = BlockHeader::new(
             merkle_tree.get_root(),
-            last_block.block_hash.clone(),
+            &last_block.block_hash,
             self.blocks.len() as u64,
             txs.len() as u64,
         );
@@ -37,20 +36,26 @@ impl Blockchain {
     pub fn add_block(&mut self, header_mined: MiningBlockHeader, new_block: &Block) {
         assert!(self.is_mined_block_valid(&header_mined));
         let miner_address = header_mined.miner_address;
-        for tx in new_block.txs.values() {
+
+        let mut txs: Vec<&Transaction> = new_block.txs.values().collect();
+        txs.sort_by(|a, b| a.nonce.cmp(&b.nonce).then_with(|| a.time.cmp(&b.time)));
+        for tx in txs {
             self.state.apply_tx(tx, &miner_address);
         }
+
         self.state
             .apply_mining_reward(&miner_address, &header_mined.reward);
+
         self.blocks.push(new_block.clone());
     }
 
     pub fn is_mined_block_valid(&self, header: &MiningBlockHeader) -> bool {
-        assert!(is_mined_block_valid(header));
+        assert!(header.is_pow_computation_valid());
         let current_nb_blocks = self.blocks.len() as u64;
         assert!(header.block_number == current_nb_blocks);
         if current_nb_blocks > 0 {
-            assert!(self.blocks.last().unwrap().block_hash == header.prev_hash);
+            let last_block_hash = &self.blocks.last().unwrap().block_hash;
+            assert!(last_block_hash == &header.prev_hash);
         }
         true
     }

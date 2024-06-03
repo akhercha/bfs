@@ -3,10 +3,8 @@ use bigdecimal::BigDecimal;
 use crate::{
     block::{block_header::MiningBlockHeader, BlockHeader},
     blockchain::Blockchain,
-    hashable::Hashable,
     merkle_tree::MerkleTree,
     transaction::Transaction,
-    utils::check_prefix,
     wallet::Wallet,
 };
 
@@ -49,18 +47,13 @@ impl Miner {
             reward.clone(),
             self.get_pub_key(),
         );
-        let mut bh_bytes: Vec<u8>;
         for _ in 0..attempts {
-            bh_bytes = bh.to_bytes();
-            let mut nonce_as_bytes = bh.nonce.to_string().as_bytes().to_vec();
-            bh_bytes.append(&mut nonce_as_bytes);
-            let computed_hash = sha256::digest(&bh_bytes);
-            if check_prefix(&computed_hash, '0', difficulty as usize) {
+            if bh.is_pow_computation_valid() {
                 break;
             }
             bh.nonce += 1;
         }
-        if bh.nonce == attempts {
+        if bh.nonce >= attempts {
             return Err(MiningError::UnsuccessfulMining);
         }
         Ok(bh)
